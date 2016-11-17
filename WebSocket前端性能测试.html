@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	简单测试websocket服务器性能；<br/>
+
+	<button id="send">测试</button>
+
+	开始时间：<input type="text" value='' id='start_time'/>
+	结束时间：<input type="text" value='' id='end_time'/>
+	<script src="http://lib.sinaApp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+	<!--
+	jQuery中json对象与json字符串互换
+		json字符串转json对象：jQuery.parseJSON(jsonStr);
+		json对象转json字符串：JSON.stringify(jsonObj);
+		ie8(兼容模式),ie7和ie6没有JSON对象，不过http://www.json.org/js.html提供了一个json.js,这样ie8(兼容模式),ie7和ie6就可以支持JSON对象以及其stringify()和parse()方法；你可以在https://github.com/douglascrockford/JSON-js上获取到这个js，一般现在用json2.js。
+
+	-->
+	<script>
+		
+		
+		var websocket = new Array();//创建容纳websocket对象数组
+		
+		var client_num = 100; //websocket数量
+		var send_num = 1000;   //单个websocket发送消息数
+		var index = 0;
+
+		//显示开始和结束时间对象
+		var start = $('#start_time');
+		var end = $('#end_time');
+
+
+		for (var i = 0; i < client_num; i++) {
+
+			// 创建Socket实例
+			websocket[i] = new WebSocket('ws://192.168.17.128:9502'); 	
+
+			// 打开Socket 
+			
+			websocket[i].onopen = function (evt) {
+			    console.log("Connected to WebSocket server.");
+			};
+
+			// 监听消息
+			websocket[i].onmessage = function (evt) {
+				index++;
+			    console.log('Retrieved data from server: ' + evt.data);
+			    if (index == client_num * send_num ) {
+			    	end.val((new Date()).getTime());
+			    	var QPS = (1000 * client_num * send_num)/(end.val() - start.val());
+			    	index = 0;
+			    	alert('QPS：'+QPS);
+			    };
+			};
+
+			// 监听错误
+			websocket[i].onerror = function (evt, e) {
+			    console.log('Error occured: ' + evt.data);
+			};
+
+			// 监听Socket的关闭
+			websocket[i].onclose = function (evt) {
+			    console.log("Disconnected");
+			};
+
+		};
+		// 关闭Socket.... 
+		//websocket.close() 
+		
+		
+		var data = new Object();	//发送数据
+		data.handle = 'front/Demo/sendMsg';//确定传递数据处理的操作；
+		$('#send').click(function(event) {
+			start.val((new Date()).getTime());
+			for (var i = 0; i < client_num; i++) {
+				for (var j = 0; j < send_num; j++) {
+					data.data = 'this is a rand equal:'+Math.random();
+					websocket[i].send(JSON.stringify(data));
+				};
+  				
+	  				
+	  		};
+
+	  		
+			
+		});
+
+
+		
+	</script>
+	
+</body>
+</html>

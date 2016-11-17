@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	this is websocket test!
+	<button id="send">发送</button>
+	<button id="getName">获取名字</button>
+	<button id="validate">演示数据验证</button>
+	<script src="http://lib.sinaApp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+	<!--
+	jQuery中json对象与json字符串互换
+		json字符串转json对象：jQuery.parseJSON(jsonStr);
+		json对象转json字符串：JSON.stringify(jsonObj);
+		ie8(兼容模式),ie7和ie6没有JSON对象，不过http://www.json.org/js.html提供了一个json.js,这样ie8(兼容模式),ie7和ie6就可以支持JSON对象以及其stringify()和parse()方法；你可以在https://github.com/douglascrockford/JSON-js上获取到这个js，一般现在用json2.js。
+
+	-->
+	<script>
+		// 创建一个Socket实例
+		var websocket = new WebSocket('ws://192.168.17.128:9502?ws_token=xxx'); 	
+
+		// 打开Socket 
+		websocket.onopen = function (evt) {
+		    console.log("Connected to WebSocket server.");
+		    // 发送一个初始化消息
+  			//websocket.send('I am the client and I\'m listening!'); 
+		};
+
+		// 监听消息
+		websocket.onmessage = function (evt) {
+		    console.log('Retrieved data from server: ' + evt.data);
+		};
+
+		// 监听错误
+		websocket.onerror = function (evt, e) {
+		    console.log('Error occured: ' + evt.data);
+		};
+
+		// 监听Socket的关闭
+		websocket.onclose = function (evt) {
+		    console.log("Disconnected");
+		};
+
+		// 关闭Socket.... 
+		//websocket.close() 
+		
+		
+		var data = new Object();
+		$('#send').click(function(event) {
+			/* Act on the event */
+			
+			data.handle = 'front/Demo/sendMsg';//确定传递数据处理的操作；
+			data.data = 'this is a rand equal:'+Math.random();
+			websocket.send(JSON.stringify(data));
+		});
+
+		$('#getName').click(function(event) {
+			/* Act on the event */
+			data.handle = 'front/Demo/getUserInfo';//确定传递数据处理的操作；
+			data.data = '1';
+			websocket.send(JSON.stringify(data));
+		});
+
+		$('#validate').click(function(event) {
+			var validate_data = {};
+			validate_data.email = "445354187@qq.com";
+			validate_data.url = "http://www.baidu.com";
+			validate_data.mobile = 13927210408;
+			/* Act on the event */
+			data.handle = 'front/Demo/validate';//确定传递数据处理的操作；
+
+			data.data = validate_data;
+			websocket.send(JSON.stringify(data));
+		});
+	</script>
+	
+</body>
+</html>
